@@ -25,6 +25,6 @@ exchanger-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
-/Mnesia*
+/priv/data/
 
 .env
