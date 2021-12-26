@@ -7,8 +7,6 @@ defmodule Exchanger.Conversions.Rates do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Exchanger.Conversions.Validator
-
   schema "rates" do
     field :rates, :map
 
@@ -22,4 +20,6 @@ defmodule Exchanger.Conversions.Rates do
       :rates
     ])
   end
+
+  def __record_name__, do: :rates
 end

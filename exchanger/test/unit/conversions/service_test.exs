@@ -23,4 +23,35 @@ defmodule Exchanger.Conversions.ServiceTest do
 
     assert conversion.from == "BRL"
   end
+
+  test "save_rates/1: saving a list of rates succeeded" do
+    {:ok, rates} = save_rates()
+
+    refute Enum.empty?(rates.rates)
+  end
+
+  test "get_latest_rates/2: get the latest saved rates" do
+    {:ok, ins_rates} = save_rates()
+
+    rates = Service.get_latest_rates(:BRL, :USD)
+
+    assert rates.inserted_at == ins_rates.inserted_at
+  end
+
+  test "convert/3: convert amount success" do
+    # attempt to convert 10BRL to USD
+    result = Service.convert(:BRL, :USD, 10.0)
+
+    assert result == 1.75739
+  end
+
+  defp save_rates() do
+      Service.save_rates(%{
+        rates: %{
+          BRL: 6.43,
+          USD: 1.13,
+          GPB: 0.84
+        }
+      })
+  end
 end

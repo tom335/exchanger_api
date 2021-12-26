@@ -26,12 +26,23 @@ defmodule Exchanger.Conversions.Service do
     end
   end
 
-  def convert(from_rate, to_rate, amount) do
-    to_rate * amount / from_rate
+  def save_rates(%{} = data) do
+    rates = Rates.changeset(%Rates{}, data)
+
+    Repo.insert(rates)
   end
 
-  defp fetch_rates(from, to) do
-    rates = Rates |> reverse_order() |> Repo.one()
-    %{from: rates[from], to: rates[to]}
+  def convert(from, to, amount) do
+    %{rates: rates} = get_latest_rates(from, to)
+
+    [from_rate, to_rate] = [rates[from], rates[to]]
+
+    Float.round(((to_rate * amount) / from_rate), 5)
+  end
+
+  def get_latest_rates(from, to) do
+    (from r in Rates,
+      limit: 1, order_by: [desc: r.inserted_at])
+    |> Repo.one
   end
 end
