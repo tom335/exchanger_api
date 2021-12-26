@@ -20,6 +20,4 @@ defmodule Exchanger.Conversions.Rates do
       :rates
     ])
   end
-
-  def __record_name__, do: :rates
 end

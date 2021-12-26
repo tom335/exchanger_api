@@ -7,16 +7,12 @@ defmodule Exchanger.Application do
 
   @impl true
   def start(_type, _args) do
-    # apparently the Ecto Mnesia Adapter creates a
-    # connection without using the config.exs :mnesia setting,
-    # so we're adding here the mnesia data dir; maybe this
-    # configuration only works in runtime?
-    Application.put_env(:mnesia, :dir, 'priv/data/mnesia/#{Mix.env()}/#{node()}')
-
     children = [
       {
         Plug.Cowboy,
-        plug: Exchanger.Router, scheme: :http, options: [port: 4003]
+        plug: Exchanger.Router,
+        scheme: :http,
+        options: [port: Application.get_env(:exchanger, :port)]
       },
       Exchanger.Repo,
       {Finch, name: ExFinch}

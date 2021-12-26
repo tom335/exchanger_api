@@ -26,21 +26,33 @@ defmodule Exchanger.Conversions.Service do
     end
   end
 
+  @doc """
+  Stores exchange rates according to the data reveived
+  by the exchanges API.
+  """
   def save_rates(%{} = data) do
     rates = Rates.changeset(%Rates{}, data)
 
     Repo.insert(rates)
   end
 
+  @doc """
+  Performs a conversion between currencies.
+
+  Returns the converted value or `nil`.
+  """
   def convert(from, to, amount) do
-    %{rates: rates} = get_latest_rates(from, to)
+    %{rates: rates} = get_latest_rates()
 
     [from_rate, to_rate] = [rates[from], rates[to]]
 
     Float.round(((to_rate * amount) / from_rate), 5)
   end
 
-  def get_latest_rates(from, to) do
+  @doc """
+  Returns the latest Rates result inserted in the database.
+  """
+  def get_latest_rates() do
     (from r in Rates,
       limit: 1, order_by: [desc: r.inserted_at])
     |> Repo.one

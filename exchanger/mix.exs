@@ -27,6 +27,7 @@ defmodule Exchanger.MixProject do
       {:finch, "~> 0.10"},
       {:castore, "~> 0.1.0"},
       {:ecto3_mnesia, "~> 0.2.0"},
+      {:mox, "~> 0.5.2", only: :test},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end

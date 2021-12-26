@@ -2,7 +2,7 @@
   disc_copies: [node()],
   record_name: Exchanger.Conversions.Conversion,
   attributes: [
-      :id,
+      :id,    # the ID must be included to avoid :bad_query errors
       :user_id,
       :from,
       :to,

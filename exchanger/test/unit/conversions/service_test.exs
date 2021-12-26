@@ -33,12 +33,14 @@ defmodule Exchanger.Conversions.ServiceTest do
   test "get_latest_rates/2: get the latest saved rates" do
     {:ok, ins_rates} = save_rates()
 
-    rates = Service.get_latest_rates(:BRL, :USD)
+    rates = Service.get_latest_rates()
 
     assert rates.inserted_at == ins_rates.inserted_at
   end
 
   test "convert/3: convert amount success" do
+    {:ok, rates} = save_rates()
+
     # attempt to convert 10BRL to USD
     result = Service.convert(:BRL, :USD, 10.0)
 
