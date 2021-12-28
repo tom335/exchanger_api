@@ -7,6 +7,7 @@ defmodule Exchanger.Conversions.Service do
   """
 
   import Ecto.Query
+  import Ecto.Changeset
 
   alias Exchanger.Repo
   alias Exchanger.Conversions.Conversion
@@ -15,25 +16,48 @@ defmodule Exchanger.Conversions.Service do
   @doc """
   Inserts a new conversion into the table; returns errors
   if the validation has failed.
-  """
-  def save(%{} = data) do
-    changes = Conversion.changeset(%Conversion{}, data)
 
-    if changes.valid? do
-      Repo.insert(changes)
+  Returns a tuple with either `{:ok, conversion}` or `{:error, errors}`.
+  """
+  def create_conversion(%{} = data) do
+    changeset = Conversion.changeset(%Conversion{}, data)
+
+    if changeset.valid? do
+      %{from: from, to: to, amount: amount} = changeset.changes
+
+      {amount_conv, rate_conv} = convert(from, to, amount)
+      conversion = change(changeset, %{amount_conv: amount_conv, rate: rate_conv})
+
+      Repo.insert(conversion)
     else
-      {:error, changes.errors}
+      {:error, map_errors(changeset.errors)}
     end
   end
 
   @doc """
-  Stores exchange rates according to the data reveived
+  Returns all conversions according to `params`.
+
+  """
+  def list_conversions(params) do
+    Conversion |> Repo.all()
+  end
+
+  @doc """
+  Stores exchange rates according to the data received
   by the exchanges API.
   """
-  def save_rates(%{} = data) do
-    rates = Rates.changeset(%Rates{}, data)
+  def save_rates(%{} = rates) do
+    rates = Rates.changeset(%Rates{}, %{base: "EUR", rates: rates})
 
     Repo.insert(rates)
+  end
+
+  @doc """
+  Returns the latest Rates result inserted in the database.
+  """
+  def get_latest_rates() do
+    from(r in Rates, limit: 1, order_by: [desc: r.inserted_at])
+    |> Repo.one()
   end
 
   @doc """
@@ -44,17 +68,18 @@ defmodule Exchanger.Conversions.Service do
   def convert(from, to, amount) do
     %{rates: rates} = get_latest_rates()
 
-    [from_rate, to_rate] = [rates[from], rates[to]]
+    [from_rate, to_rate] = [rates[String.to_atom(from)], rates[String.to_atom(to)]]
 
-    Float.round(((to_rate * amount) / from_rate), 5)
+    rate_conv = to_rate / from_rate
+    amount_conv = Float.round(rate_conv * amount, 5)
+
+    {amount_conv, rate_conv}
   end
 
-  @doc """
-  Returns the latest Rates result inserted in the database.
-  """
-  def get_latest_rates() do
-    (from r in Rates,
-      limit: 1, order_by: [desc: r.inserted_at])
-    |> Repo.one
+  defp map_errors(errors) do
+    errors
+    |> Enum.reduce(%{}, fn {k, {message, _}}, m ->
+      Map.put(m, k, message)
+    end)
   end
 end

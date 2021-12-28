@@ -8,7 +8,8 @@ defmodule Exchanger.Conversions.Rates do
   import Ecto.Changeset
 
   schema "rates" do
-    field :rates, :map
+    field(:base, :string)
+    field(:rates, :map)
 
     timestamps()
   end
@@ -17,6 +18,7 @@ defmodule Exchanger.Conversions.Rates do
   def changeset(rates, attrs) do
     rates
     |> cast(attrs, [
+      :base,
       :rates
     ])
   end

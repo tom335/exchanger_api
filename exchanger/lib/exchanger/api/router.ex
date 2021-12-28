@@ -3,6 +3,8 @@ defmodule Exchanger.Api.Router do
   use Plug.ErrorHandler
   import Plug.Conn
 
+  alias Exchanger.Conversions.Service
+
   plug(:match)
 
   plug(Plug.Parsers,
@@ -13,34 +15,20 @@ defmodule Exchanger.Api.Router do
 
   plug(:dispatch)
 
-  @doc """
-    ## GET /api/conversions
-
-    Returns all conversions with paginated results.
-  """
   get "/conversions" do
-    conn |> send(:ok, [%{}])
+    conn |> send(:ok, Service.list_conversions(conn.query_params))
   end
 
-  @doc """
-    ## POST /api/conversions
+  get "/conversions/rates" do
+    latest = Service.get_latest_rates()
+    conn |> send(:ok, %{base: latest.base, rates: latest.rates})
+  end
 
-    Attempts to perform a conversion between currencies. Accepts any of
-    the following currencies:
-
-    BRL, USD, EUR, JPY
-
-    Required fields:
-
-    {
-      user_id: int       
-      from:    string     The original currency, e.g. USD
-      to:      string     The target currency
-      amount:  decimal    The desired amount to convert from
-    }
-  """
   post "/conversions" do
-    conn |> send(:ok, %{hi: "there"})
+    case Service.create_conversion(conn.body_params) do
+      {:ok, conversion} -> conn |> send(:created, conversion)
+      {:error, errors} -> conn |> send(:unprocessable, errors)
+    end
   end
 
   match _ do
@@ -48,13 +36,14 @@ defmodule Exchanger.Api.Router do
   end
 
   @impl Plug.ErrorHandler
-  def handle_errors(conn, %{kind: _kind, reason: _reason, stack: _stack}) do
-    send(conn, conn.status, "Something went wrong")
+  def handle_errors(conn, %{kind: _, reason: reason, stack: _}) do
+    conn
+    |> send(conn.status, %{error: "Request error", message: error_message(conn.status, reason)})
   end
 
   defp send(conn, code, data) when is_integer(code) do
     conn
-    |> Plug.Conn.put_resp_content_type("application/json")
+    |> put_resp_content_type("application/json")
     |> send_resp(code, Jason.encode!(data))
   end
 
@@ -62,14 +51,26 @@ defmodule Exchanger.Api.Router do
     code =
       case code do
         :ok -> 200
+        :created -> 201
         :not_found -> 404
         :malformed_data -> 400
         :non_authenticated -> 401
         :forbidden_access -> 403
+        :unprocessable -> 422
         :server_error -> 500
         :error -> 504
       end
 
     send(conn, code, data)
+  end
+
+  defp error_message(status_code, reason) do
+    case status_code do
+      400 -> "Malformed request, unexpected byte at position #{reason.exception.position}"
+      422 -> "Unprocessable entity"
+      415 -> "Unsupported media type #{reason.media_type}"
+      500 -> "Internal server error"
+      _ -> "Unknown error"
+    end
   end
 end

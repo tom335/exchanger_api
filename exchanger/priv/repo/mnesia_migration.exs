@@ -20,6 +20,7 @@
   record_name: Exchanger.Conversions.Rates,
   attributes: [
     :id,
+    :base,
     :rates,
     :updated_at,
     :inserted_at

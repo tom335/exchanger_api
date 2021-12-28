@@ -5,8 +5,7 @@ defmodule Exchanger.Conversions.Validator do
   """
 
   alias Ecto.Changeset
-
-  @available_currencies [:BRL, :USD, :EUR, :JPY]
+  alias Exchanger.Conversions.Service
 
   @doc """
   Validates the fields `:from` and `:to` from a Conversion schema.
@@ -45,10 +44,18 @@ defmodule Exchanger.Conversions.Validator do
 
   defp not_available?(changeset, field) do
     val = changeset.changes[field]
-    is_nil(val) or String.to_atom(val) not in @available_currencies
+
+    is_nil(val) or String.to_atom(val) not in available_currencies
   end
 
   defp add_error(changeset, field, message) do
     Changeset.add_error(changeset, field, message)
+  end
+
+  defp available_currencies do
+    case Service.get_latest_rates() do
+      %{rates: rates} -> Map.keys(rates)
+      nil -> []
+    end
   end
 end

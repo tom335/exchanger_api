@@ -4,20 +4,32 @@ defmodule Exchanger.Conversions.ServiceTest do
   # alias Exchanger.Conversions.Conversion
   alias Exchanger.Conversions.Service
 
-  test "save/1: errors returns, all fields missing" do
-    {:error, errors} = Service.save(%{})
+  test "create_conversion/1: errors found, all fields missing" do
+    {:error, errors} = Service.create_conversion(%{})
 
     assert errors[:to] != nil
   end
 
-  test "save/1: validation passed, save entity" do
+  test "create_conversion/1: errors founds, currency not available" do
+    {:error, errors} =
+      Service.create_conversion(%{
+        from: "BRL",
+        to: "NON_AV",
+        amount: 123
+      })
+
+    assert errors[:to] == "Currency not available"
+  end
+
+  test "create_conversion/1: validation passed, save entity" do
+    {:ok, rates} = save_rates()
+
     {:ok, conversion} =
-      Service.save(%{
+      Service.create_conversion(%{
         from: "BRL",
         to: "USD",
-        amount: 12.0,
+        amount: 12,
         amount_conv: 0.0,
-        rate: 1.2,
         user_id: 1
       })
 
@@ -42,18 +54,16 @@ defmodule Exchanger.Conversions.ServiceTest do
     {:ok, rates} = save_rates()
 
     # attempt to convert 10BRL to USD
-    result = Service.convert(:BRL, :USD, 10.0)
+    {amount, _} = Service.convert("BRL", "USD", 10.0)
 
-    assert result == 1.75739
+    assert amount == 1.75739
   end
 
   defp save_rates() do
-      Service.save_rates(%{
-        rates: %{
-          BRL: 6.43,
-          USD: 1.13,
-          GPB: 0.84
-        }
-      })
+    Service.save_rates(%{
+      BRL: 6.43,
+      USD: 1.13,
+      GPB: 0.84
+    })
   end
 end
