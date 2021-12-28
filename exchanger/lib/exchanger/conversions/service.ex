@@ -6,6 +6,8 @@ defmodule Exchanger.Conversions.Service do
 
   """
 
+  @page_size 5
+
   import Ecto.Query
   import Ecto.Changeset
 
@@ -35,11 +37,50 @@ defmodule Exchanger.Conversions.Service do
   end
 
   @doc """
-  Returns all conversions according to `params`.
+  Returns a map with conversions and the record count, according to `params`. The parameters can be:
+
+  %{
+    :user_id
+    :page    
+    :page_size
+  }
+
+  Example of returned results:
+
+  ```
+  %{
+    items: [%Conversion{..}, %Conversion{..}],
+    total_count: integer
+  }
+  ```
 
   """
-  def list_conversions(params) do
-    Conversion |> Repo.all()
+  def list_conversions(%{} = params) do
+    {page_size, offset} = page_params(params)
+
+    by_user =
+      if uid = params[:user_id] do
+        user_id = String.to_integer(uid)
+        dynamic([c], c.user_id == ^user_id)
+      else
+        true
+      end
+
+    items =
+      Conversion
+      |> where(^by_user)
+      |> offset(^offset)
+      |> limit(^page_size)
+      |> Repo.all()
+
+    # unfortunately, mnesia doesn't have the count(*) equivalent as in SQL
+    total_count = 
+      Conversion
+      |> select([c], c.id)
+      |> where(^by_user)
+      |> Repo.all()
+
+    %{items: items, total_count: length(total_count)}
   end
 
   @doc """
@@ -81,5 +122,23 @@ defmodule Exchanger.Conversions.Service do
     |> Enum.reduce(%{}, fn {k, {message, _}}, m ->
       Map.put(m, k, message)
     end)
+  end
+
+  defp page_params(%{} = params) do
+    page_size =
+      if p_size = params[:page_size] do
+        String.to_integer(p_size)
+      else
+        @page_size
+      end
+
+    offset =
+      if p = params[:page] do
+        page_size * (String.to_integer(p) - 1)
+      else
+        0
+      end
+
+    {page_size, offset}
   end
 end

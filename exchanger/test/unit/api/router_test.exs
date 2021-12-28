@@ -13,15 +13,33 @@ defmodule Exchanger.RouterTest do
     assert %{error: "Resource not found"} = decode_resp(conn.resp_body)
   end
 
-  test "GET /api/conversions/rates " do
+  test "GET /api/conversions/rates: returns the latest rates" do
     conn = get_req("/conversions/rates")
 
     assert conn.status == 200
     assert %{rates: _} = decode_resp(conn.resp_body)
   end
 
-  test "GET /api/conversions" do
-    assert true
+  test "GET /api/conversions: calling without parameters, page 1" do
+    conn = get_req("/conversions")
+
+    assert conn.status == 200
+
+    %{conversions: conversions, pagination: pagination} = decode_resp(conn.resp_body)
+
+    assert length(conversions) == 5
+    assert pagination[:next_page] == 2
+  end
+
+  test "GET /api/conversions?user_id=1: returns only conversions by user" do
+    conn = get_req("/conversions?user_id=1")
+    assert conn.status == 200
+    
+    %{conversions: conversions, pagination: pagination} = decode_resp(conn.resp_body)
+
+    assert Enum.all?(conversions, fn conv -> conv.user_id == 1 end)
+    assert pagination[:next_page] == 2
+    assert pagination[:total_count] >= 5
   end
 
   test "POST /api/conversions: invalid content type, raises exception" do
@@ -57,10 +75,9 @@ defmodule Exchanger.RouterTest do
   end
 
   defp post_json(endpoint, body) do
-    conn =
-      :post
-      |> conn("/api/conversions", body)
-      |> put_req_header("content-type", "application/json")
+    :post
+    |> conn(endpoint, body)
+    |> put_req_header("content-type", "application/json")
   end
 
   defp get_req(endpoint) do

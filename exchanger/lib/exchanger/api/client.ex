@@ -25,7 +25,7 @@ defmodule Exchanger.Api.Client do
     case json do
       %{success: _, rates: rates} -> rates
       %{error: %{code: _code, message: message}} ->
-        Logger.warning(message)
+        Logger.warning("Error parsing received JSON: #{message}")
         %{}
       _ -> %{}
     end
@@ -33,7 +33,7 @@ defmodule Exchanger.Api.Client do
 
   defp parse_response(%{reason: reason}) do
     # log the request errors and return an empty map
-    Logger.warning(reason)
+    Logger.warning("Error on API request: #{reason}")
     %{}
   end
 

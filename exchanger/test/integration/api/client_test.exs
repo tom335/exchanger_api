@@ -6,7 +6,6 @@ defmodule Exchanger.Api.ClientTest do
   test "fetch_rates/0: request succeeded, rates returned" do
     rates = Client.fetch_rates()
 
-    IO.inspect rates
-    assert true
+    assert rates[:EUR] != nil
   end
 end

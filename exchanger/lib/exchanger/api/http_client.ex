@@ -7,7 +7,8 @@ defmodule Exchanger.Api.HttpClient do
   @behaviour Http
 
   @doc """
-  Performs a GET request to the given `url`
+  Performs a GET request to the given `url`.
+  Returns either a Finch.Response or a Finch.Error.
   """
   @impl Http
   def get(url) do
@@ -19,8 +20,18 @@ defmodule Exchanger.Api.HttpClient do
 
   @doc """
   Performs an HTTP request to the given `url` with `method`.
+  
+  Methods are represented by atoms like:
+
+  ```
+  :get
+  :post
+  :patch
+  ```
+
   """
   @impl Http
+  @spec request(atom, string) :: {:ok, Finch.Response} | {:error, Finch.Error}
   def request(method, url) do
     Finch.build(method, url, [{"content-type", "application/json"}])
     |> Finch.request(ExFinch)

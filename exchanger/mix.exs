@@ -8,12 +8,15 @@ defmodule Exchanger.MixProject do
       app: :exchanger,
       version: "0.1.0",
       elixir: "~> 1.12",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      test_paths: test_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [
         ignore_modules: [
           Exchanger.Api.Http,
-          Exchanger.Conversions.Conversion
+          Exchanger.Conversions.Conversion,
+          Exchanger.Util.LoadRates
         ]
       ],
 
@@ -31,7 +34,8 @@ defmodule Exchanger.MixProject do
     ]
   end
 
-  defp elixirc_paths(env) when env in @test_envs, do: ["test/#{env}"]
+  defp elixirc_paths(env) when env in @test_envs, do: ["lib", "test/#{env}"]
+  defp elixirc_paths(_), do: ["lib"]
   defp test_paths(:integration), do: ["test/integration"]
   defp test_paths(_), do: ["test/unit"]
 
@@ -72,9 +76,8 @@ defmodule Exchanger.MixProject do
     ]
   end
 
-  def run_setup_db(args) do
-    # Enum.each(["dev", "test", "integration", "prod"], fn env ->
-    Enum.each(["prod"], fn env ->
+  def run_setup_db(_args) do
+    Enum.each(["dev", "test", "integration", "prod"], fn env ->
       run_with_env("run", env, ["./priv/repo/mnesia_migration.exs"]) end)
   end
 
@@ -82,10 +85,9 @@ defmodule Exchanger.MixProject do
   def run_unit_tests(args), do: run_with_env("test", "test", args)
 
   def run_with_env(cmd, env, args) do
-    #args = if IO.ANSI.enabled?, do: ["--color"|args], else: ["--no-color"|args]
     IO.puts "==> Running #{cmd} with `MIX_ENV=#{env}`"
 
-    IO.inspect args
+    args = if cmd == "test" do ["--color"|args] else args end
 
     {_, res} = System.cmd "mix", [cmd|args],
       into: IO.binstream(:stdio, :line),

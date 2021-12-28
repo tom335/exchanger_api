@@ -4,11 +4,12 @@ defmodule Exchanger.Api.Router do
   import Plug.Conn
 
   alias Exchanger.Conversions.Service
+  alias Exchanger.Api.Pagination
 
   plug(:match)
 
   plug(Plug.Parsers,
-    parsers: [:json],
+    parsers: [:json, :urlencoded],
     json_decoder: Jason,
     pass: ["application/json"]
   )
@@ -16,7 +17,15 @@ defmodule Exchanger.Api.Router do
   plug(:dispatch)
 
   get "/conversions" do
-    conn |> send(:ok, Service.list_conversions(conn.query_params))
+    query = map_keys_to_atoms(conn.query_params)
+    page = query[:page]
+    page_size = query[:page_size]
+
+    %{items: items, total_count: total_count} = Service.list_conversions(query)
+
+    pagination = Pagination.build(conn.request_path, page, total_count, page_size)
+
+    conn |> send(:ok, %{conversions: items, pagination: pagination})
   end
 
   get "/conversions/rates" do
@@ -72,5 +81,10 @@ defmodule Exchanger.Api.Router do
       500 -> "Internal server error"
       _ -> "Unknown error"
     end
+  end
+
+  defp map_keys_to_atoms(map) do
+    map
+    |> Enum.reduce(%{}, fn {k, v}, m -> Map.put(m, String.to_atom(k), v) end)
   end
 end
