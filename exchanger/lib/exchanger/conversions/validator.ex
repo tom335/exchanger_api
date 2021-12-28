@@ -45,7 +45,7 @@ defmodule Exchanger.Conversions.Validator do
   defp not_available?(changeset, field) do
     val = changeset.changes[field]
 
-    is_nil(val) or String.to_atom(val) not in available_currencies
+    is_nil(val) or String.to_atom(val) not in available_currencies()
   end
 
   defp add_error(changeset, field, message) do

@@ -5,6 +5,8 @@ defmodule Exchanger.Api.Client do
   Provides high level methods to retrieve exchange rates between available currencies.
   """
 
+  require Logger
+
   @base_url "http://api.exchangeratesapi.io"
   @api_version "v1"
 
@@ -14,7 +16,7 @@ defmodule Exchanger.Api.Client do
   """
   @spec fetch_rates() :: Map
   def fetch_rates() do
-    http_client.get(url("/latest")) |> parse_response()
+    http_client().get(url("/latest")) |> parse_response()
   end
 
   defp parse_response(%{body: body}) do
@@ -22,13 +24,16 @@ defmodule Exchanger.Api.Client do
 
     case json do
       %{success: _, rates: rates} -> rates
-      %{error: %{code: code, message: message}} -> %{}
+      %{error: %{code: _code, message: message}} ->
+        Logger.warning(message)
+        %{}
       _ -> %{}
     end
   end
 
   defp parse_response(%{reason: reason}) do
     # log the request errors and return an empty map
+    Logger.warning(reason)
     %{}
   end
 

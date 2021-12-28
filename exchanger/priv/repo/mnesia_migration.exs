@@ -27,3 +27,5 @@
   ],
   type: :set
 ])
+
+IO.puts "Mnesia database tables created!"
