@@ -21,11 +21,13 @@ defmodule Exchanger.Api.Router do
     page = query[:page]
     page_size = query[:page_size]
 
-    %{items: items, total_count: total_count} = Service.list_conversions(query)
+    case Service.list_conversions(query) do
+      {:ok, %{items: items, total_count: total_count}} ->
+        pagination = Pagination.build(conn.request_path, page, total_count, page_size)
+        conn |> send(:ok, %{conversions: items, pagination: pagination})
 
-    pagination = Pagination.build(conn.request_path, page, total_count, page_size)
-
-    conn |> send(:ok, %{conversions: items, pagination: pagination})
+      {:error, errors} -> conn |> send(:malformed_data, %{errors: errors})
+    end
   end
 
   get "/conversions/rates" do
@@ -57,20 +59,16 @@ defmodule Exchanger.Api.Router do
   end
 
   defp send(conn, code, data) when is_atom(code) do
-    code =
-      case code do
-        :ok -> 200
-        :created -> 201
-        :not_found -> 404
-        :malformed_data -> 400
-        :non_authenticated -> 401
-        :forbidden_access -> 403
-        :unprocessable -> 422
-        :server_error -> 500
-        :error -> 504
-      end
-
-    send(conn, code, data)
+    http_codes = [
+        ok: 200,
+        created: 201,
+        not_found: 404,
+        malformed_data: 400,
+        unprocessable: 422,
+        server_error: 500,
+        error: 504
+    ]
+    send(conn, http_codes[code], data)
   end
 
   defp error_message(status_code, reason) do

@@ -22,8 +22,6 @@ defmodule Exchanger.Conversions.ServiceTest do
   end
 
   test "create_conversion/1: validation passed, save entity" do
-    {:ok, rates} = save_rates()
-
     {:ok, conversion} =
       Service.create_conversion(%{
         from: "BRL",
@@ -51,7 +49,7 @@ defmodule Exchanger.Conversions.ServiceTest do
   end
 
   test "convert/3: convert amount success" do
-    {:ok, rates} = save_rates()
+    {:ok, _rates} = save_rates()
 
     # attempt to convert 10BRL to USD
     {amount, _} = Service.convert("BRL", "USD", 10.0)

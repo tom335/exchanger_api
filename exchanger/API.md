@@ -4,7 +4,19 @@
 
 ### GET /api/conversions
 
-Returns all conversions with paginated results.
+Returns all conversions with paginated results. It allows the following query parameters:
+
+```
+user_id
+page
+page_size
+```
+Examples:
+
+```
+/api/conversions?user_id=1          # first page of all conversions for user 1
+/api/conversions?user_id=1&page=2   # second page of conversions ... and so on
+```
 
 ### POST /api/conversions
 

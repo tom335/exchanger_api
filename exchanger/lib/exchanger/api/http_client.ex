@@ -31,7 +31,6 @@ defmodule Exchanger.Api.HttpClient do
 
   """
   @impl Http
-  @spec request(atom, string) :: {:ok, Finch.Response} | {:error, Finch.Error}
   def request(method, url) do
     Finch.build(method, url, [{"content-type", "application/json"}])
     |> Finch.request(ExFinch)
