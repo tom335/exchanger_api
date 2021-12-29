@@ -5,8 +5,8 @@ This project provides an API for currency convertions, using the [ExchangeRatesA
 The main goal is to retrieve, on an interval of 12 hours, the currency rates and store them in our database (Mnesia),
 using the latest rates published in ExchangeRatesAPI.
 
-An application demo running can be found [here](https://macroheap.com:4007/api/conversions), and the API
-documentation in the demo's [home page](https://macroheap.com:4007/).
+An application demo running can be found [here](http://macroheap.com:4007/api/conversions), and the API
+documentation in the demo's [home page](http://macroheap.com:4007/).
 
 ## Running
 
@@ -23,6 +23,14 @@ EX_API_ACCESS_KEY=<your_api_key>
 ### Using Docker
 
 If you just want to get the application running, the easiest way is to use Docker (and `docker-compose`).
+
+Once in the `exchanger` directory, Create the data folders that will store mnesia tables:
+
+```
+mkdir -p priv/data/mnesia/test
+mkdir -p priv/data/mnesia/prod
+```
+Execute the commands above **before** starting Docker, or it'll mount the volume on top of the directories as root.
 
 Choose a service to start, it can be either `exchanger_dev` or `exchanger` (production).
 
