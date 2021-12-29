@@ -26,7 +26,7 @@ defmodule Exchanger.Api.Router do
         pagination = Pagination.build(conn.request_path, page, total_count, page_size)
         conn |> send(:ok, %{conversions: items, pagination: pagination})
 
-      {:error, errors} -> conn |> send(:malformed_data, %{errors: errors})
+      {:error, errors} -> conn |> send(:malformed_data, %{error: "Request error", details: errors})
     end
   end
 
@@ -38,7 +38,7 @@ defmodule Exchanger.Api.Router do
   post "/conversions" do
     case Service.create_conversion(conn.body_params) do
       {:ok, conversion} -> conn |> send(:created, conversion)
-      {:error, errors} -> conn |> send(:unprocessable, errors)
+      {:error, errors} -> conn |> send(:unprocessable, %{error: "Validation error", details: errors})
     end
   end
 
@@ -49,7 +49,7 @@ defmodule Exchanger.Api.Router do
   @impl Plug.ErrorHandler
   def handle_errors(conn, %{kind: _, reason: reason, stack: _}) do
     conn
-    |> send(conn.status, %{error: "Request error", message: error_message(conn.status, reason)})
+    |> send(conn.status, %{error: "Request error", details: error_message(conn.status, reason)})
   end
 
   defp send(conn, code, data) when is_integer(code) do

@@ -6,6 +6,7 @@ defmodule Exchanger.Conversions.Service do
 
   """
 
+  # default page size
   @page_size 5
 
   import Ecto.Query
@@ -59,7 +60,7 @@ defmodule Exchanger.Conversions.Service do
     }
   }
   ```
-  And the errors when the parameters validation has failed:
+  Errors when the parameters validation has failed:
 
   ```
   {:error,
@@ -117,6 +118,8 @@ defmodule Exchanger.Conversions.Service do
   defp list_and_paginate(params) do
     {page_size, offset} = page_params(params)
 
+    fields = [:user_id, :from, :to, :amount, :rate, :inserted_at]
+
     by_user =
       if uid = params[:user_id] do
         user_id = String.to_integer(uid)
@@ -127,19 +130,13 @@ defmodule Exchanger.Conversions.Service do
 
     items =
       Conversion
+      |> select([c], map(c, ^fields))
       |> where(^by_user)
       |> offset(^offset)
       |> limit(^page_size)
       |> Repo.all()
 
-    # unfortunately, mnesia doesn't have the count(*) equivalent as in SQL
-    total_count = 
-      Conversion
-      |> select([c], c.id)
-      |> where(^by_user)
-      |> Repo.all()
-
-    %{items: items, total_count: length(total_count)}
+    %{items: items, total_count: total_count(by_user)}
   end
 
   defp map_errors(errors) do
@@ -153,23 +150,26 @@ defmodule Exchanger.Conversions.Service do
     errors = 
       [:user_id, :page, :page_size]
       |> Enum.reduce(%{}, fn k, m ->
-        if not validate_int(params[k]) do
-          Map.put(m, k, "Parameter #{k} must be an integer")
-        else
+        if validate_int(params[k]) do
           m
+        else
+          # parameter exists, but it's not an int
+          Map.put(m, k, "Parameter #{k} must be an integer")
         end
       end)
-    IO.inspect errors
     errors
   end
 
   defp validate_int(value) do
     if is_nil(value) do
-      true
+      # let the nil values pass now, since
+      # they're optional
+      true 
     else
       case Integer.parse(value) do
         :error -> false
-        _ -> true
+        {_, ""} -> true
+        _ -> false
       end
     end
   end
@@ -193,5 +193,15 @@ defmodule Exchanger.Conversions.Service do
       end
 
     {page_size, offset}
+  end
+
+  defp total_count(by_user) do
+    # unfortunately, mnesia doesn't have the count(*) equivalent as in SQL
+    length( 
+      Conversion
+      |> select([c], c.id)
+      |> where(^by_user)
+      |> Repo.all()
+    )
   end
 end

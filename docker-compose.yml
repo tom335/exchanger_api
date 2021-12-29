@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  exchanger_dev:
+    build: .
+    volumes:
+      # :Z extension is required in SELinux
+      - ./exchanger/priv/data:/exchanger/priv/data:Z
+    ports:
+      - "4003:4003"
+    env_file:
+      - ./exchanger/.env
+    environment:
+      ENV: dev
+
+  exchanger:
+    build: .
+    volumes:
+      - ./exchanger/priv/data:/exchanger/priv/data:Z
+    ports:
+      - "4007:4007"
+    env_file:
+      - ./exchanger/.env
+    environment:
+      ENV: prod

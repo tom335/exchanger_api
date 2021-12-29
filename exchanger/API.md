@@ -1,7 +1,14 @@
 # Exchanger API
 
-## /api/conversions
+The current API provides methods for retrieving exchange rates and create conversions between currencies.
 
+
+## Conversions
+
+Endpoints aimed to create and list conversions and rates.
+<br />
+
+---
 ### GET /api/conversions
 
 Returns all conversions with paginated results. It allows the following query parameters:
@@ -18,33 +25,110 @@ Examples:
 /api/conversions?user_id=1&page=2   # second page of conversions ... and so on
 ```
 
+### Response type
+
+#### Status
+`200 ok`
+
+#### Body
+```
+{
+    "conversions": [
+        {
+            "user_id":     Integer,
+            "from":        String,
+            "to":          String,
+            "amount":      Float,
+            "amount_conv": Float,
+            "rate":        Float
+        }
+        .
+        .
+    ]
+    "pagination": [
+        "next_link":   String,
+        "next_page":   Integer,
+        "page":        Integer,
+        "prev_page":   Integer,
+        "total_count": Integer,
+        "total_pages": Integer
+    ]
+}
+```
+<br />
+---
 ### POST /api/conversions
 
-Attempts to perform a conversion between currencies. Accepts any of
-the currencies provided by the endpoing `/conversions/rates`.
+This endpoint creates a conversion between currencies. Accepts any of
+the currencies provided by the endpoint `/api/conversions/rates`.
 
 Required fields:
 
+<table>
+  <thead>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+        <td><code>user_id</code></td>
+        <td>Integer</td>
+        <td>The user ID</td>
+    </tr>
+    <tr>
+        <td><code>from</code></td>
+        <td>Float</td>
+        <td>The original currency, e.g. USD</td>
+    </tr>
+    <tr>
+        <td><code>to</code></td>
+        <td>Float</td>
+        <td>The target currency</td>
+    </tr>
+    <tr>
+        <td><code>amount</code></td>
+        <td>Float</td>
+        <td>The desired amount to convert from</td>
+    </tr>
+  </tbody>
+</table>
+
+### Response type
+
+#### Status
+`201 created`
+
+#### Body
 ```
 {
-  user_id: int
-  from:    string     The original currency, e.g. USD
-  to:      string     The target currency
-  amount:  decimal    The desired amount to convert from
+    "user_id":     Integer
+    "from":        String
+    "to":          String
+    "amount":      Float
+    "amount_conv": Float
+    "rate":        Float
 }
 ```
 
+<br />
+---
 ### GET /api/conversions/rates
 
 Returns all available rates to convert currencies. Our rates
 use the EUR currency as the base rate.
 
-Response type:
+#### Status
+`200 ok`
+
+#### Body
 
 ```
 {
-  base: string,
-  rates: object
+  "base":   String,
+  "rates":  Map
 }
 ```
 
@@ -61,4 +145,43 @@ Response example:
 }
 ```
 
+## Error responses
 
+### `404 Not Found`
+
+#### Body
+```
+{
+    "error":   String
+}
+```
+
+### `400 Bad request (malformed data)`
+
+#### Body
+```
+{
+    "error":   String
+    "details": String
+}
+```
+
+### `422 Unprocessable entity`
+
+#### Body
+```
+{
+    "error":   String
+    "details": Map
+}
+```
+
+### `415 Unsupported media type`
+
+#### Body
+```
+{
+    "error":   String
+    "details": String
+}
+```

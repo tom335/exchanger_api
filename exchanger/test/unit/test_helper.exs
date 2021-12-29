@@ -1,9 +1,13 @@
 alias Exchanger.Conversions.Service
-
-ExUnit.start()
+import Mox
 
 Mox.defmock(Exchanger.HttpMock, for: Exchanger.Api.Http)
 Application.put_env(:exchanger, :http, Exchanger.HttpMock)
+
+Exchanger.HttpMock
+|> expect(:get, fn _ -> nil end)
+
+ExUnit.start()
 
 # save some rates and conversions for use on tests
 Service.save_rates(%{

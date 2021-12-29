@@ -56,7 +56,7 @@ defmodule Exchanger.RouterTest do
     content = decode_resp(body)
 
     assert status == 415
-    assert content.message == "Unsupported media type text/html"
+    assert content.details == "Unsupported media type text/html"
   end
 
   test "POST /api/conversions: request failed, malformed JSON" do
@@ -71,7 +71,7 @@ defmodule Exchanger.RouterTest do
     content = decode_resp(body)
 
     assert status == 400
-    assert String.starts_with?(content.message, "Malformed request")
+    assert String.starts_with?(content.details, "Malformed request")
   end
 
   defp post_json(endpoint, body) do

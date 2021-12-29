@@ -78,7 +78,8 @@ defmodule Exchanger.MixProject do
 
   def run_setup_db(_args) do
     Enum.each(["dev", "test", "integration", "prod"], fn env ->
-      run_with_env("run", env, ["./priv/repo/mnesia_migration.exs"]) end)
+      run_with_env("run", env,
+        ["./priv/repo/mnesia_migration.exs"]) end)
   end
 
   def run_integration_tests(args), do: run_with_env("test", "integration", args)

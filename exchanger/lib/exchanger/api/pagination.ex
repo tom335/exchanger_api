@@ -27,8 +27,8 @@ defmodule Exchanger.Api.Pagination do
   ```
   """
   def build(endpoint, page, total_count, page_size) do
-    page = if not is_empty?(page) do String.to_integer(page) else 1 end
-    page_size = if not is_empty?(page_size) do String.to_integer(page_size) else @page_size end
+    page = to_int(page, 1)
+    page_size = to_int(page_size, @page_size)
 
     total_pages = ceiling(total_count / page_size)
 
@@ -43,7 +43,11 @@ defmodule Exchanger.Api.Pagination do
       prev_page: prev_page
     }
 
-    [next_link: next_page, prev_link: prev_page]
+    next_prev_links(pagination, endpoint)
+  end
+
+  defp next_prev_links(pagination, endpoint) do
+    [next_link: pagination.next_page, prev_link: pagination.prev_page]
     |> Enum.reduce(pagination, fn {k, v}, m ->
       if v do
         Map.put(m, k, build_query_str(endpoint, v))
@@ -51,6 +55,14 @@ defmodule Exchanger.Api.Pagination do
         m
       end
     end)
+  end
+
+  defp to_int(value, opt) do
+    if is_empty?(value) do
+      opt
+    else
+      String.to_integer(value)
+    end
   end
 
   defp is_empty?(value) do

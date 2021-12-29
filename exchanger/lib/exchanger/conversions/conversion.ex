@@ -9,7 +9,17 @@ defmodule Exchanger.Conversions.Conversion do
 
   alias Exchanger.Conversions.Validator
 
-  @derive {Jason.Encoder, only: [:user_id, :from, :to, :rate, :amount, :amount_conv]}
+  @json_fields [
+    :user_id,
+    :from,
+    :to,
+    :rate,
+    :amount,
+    :amount_conv,
+    :inserted_at
+  ]
+
+  @derive {Jason.Encoder, only: @json_fields}
   schema "conversion" do
     field(:user_id, :integer)
     field(:from, :string)

@@ -1,0 +1,7 @@
+**/_build
+**/deps
+**/data/mnesia/dev/*
+**/data/mnesia/integration/*
+**/data/mnesia/prod/*
+**/data/mnesia/test/*
+
