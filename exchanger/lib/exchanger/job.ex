@@ -4,7 +4,8 @@ defmodule Exchanger.FetchRatesJob do
   require Logger
   alias Exchanger.Util.LoadRates
 
-  @timeout :timer.hours(24)
+  # Fetch new rates each 12 hours
+  @timeout :timer.hours(12)
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
@@ -16,15 +17,17 @@ defmodule Exchanger.FetchRatesJob do
   end
 
   def handle_continue(:start, state) do
-    Logger.info("Fetching rates in #{DateTime.utc_now}")
     # fetch rates immediately after application starts
-    # LoadRates.load()
+    if Mix.env == :prod do
+      Logger.info(">>> App started :: Fetching rates in #{DateTime.utc_now} <<<")
+      LoadRates.load()
+    end
 
     {:noreply, state, @timeout}
   end
 
   def handle_info(:timeout, state) do
-    Logger.info("Fetching rates in #{DateTime.utc_now}")
+    Logger.info(">>> Fetching rates in #{DateTime.utc_now} <<<")
     # wait 24h before fetching data again
     LoadRates.load()
 
