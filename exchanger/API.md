@@ -35,6 +35,7 @@ Examples:
 {
     "conversions": [
         {
+            "id":          Integer,
             "user_id":     Integer,
             "from":        String,
             "to":          String,
@@ -104,6 +105,7 @@ Required fields:
 #### Body
 ```
 {
+    "id":          Integer
     "user_id":     Integer
     "from":        String
     "to":          String

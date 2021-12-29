@@ -5,6 +5,9 @@ This project provides an API for currency convertions, using the [ExchangeRatesA
 The main goal is to retrieve, on an interval of 12 hours, the currency rates and store them in our database (Mnesia),
 using the latest rates published in ExchangeRatesAPI.
 
+An application demo running can be found [here](https://macroheap.com:4007/api/conversions), and the API
+documentation in the demo's [home page](https://macroheap.com:4007/).
+
 ## Running
 
 ### Initial steps
@@ -91,5 +94,5 @@ mix run --no-halt
 
 That's it, if the steps finish successfully, you should have your app up and running!
 
-It's time to see the API documentation, in the [/api/doc](localhost:4003/).
+It's time to see the API documentation, in the [project home](localhost:4003/).
 

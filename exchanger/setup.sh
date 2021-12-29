@@ -3,6 +3,9 @@
 # compile all application code
 MIX_ENV=$ENV mix compile
 
+# generates docs
+mix docs
+
 # setup database for the select ENV
 MIX_ENV=$ENV mix run ./priv/repo/mnesia_migration.exs
 

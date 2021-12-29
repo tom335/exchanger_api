@@ -10,6 +10,7 @@ defmodule Exchanger.Conversions.Conversion do
   alias Exchanger.Conversions.Validator
 
   @json_fields [
+    :id,
     :user_id,
     :from,
     :to,

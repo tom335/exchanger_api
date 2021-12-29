@@ -118,7 +118,7 @@ defmodule Exchanger.Conversions.Service do
   defp list_and_paginate(params) do
     {page_size, offset} = page_params(params)
 
-    fields = [:user_id, :from, :to, :amount, :rate, :inserted_at]
+    fields = [:id, :user_id, :from, :to, :amount, :rate, :inserted_at]
 
     by_user =
       if uid = params[:user_id] do
