@@ -1,4 +1,7 @@
 # Exchanger
+
+![Elixir test](https://github.com/toms099/exchanger_api/actions/workflows/elixir.yml/badge.svg)
+
 This project provides an API for currency convertions, using the [ExchangeRatesAPI](https://exchangeratesapi.io/) service.
 
 The main goal is to retrieve, on a daily basis, the currency rates and store them in our database (Mnesia),
