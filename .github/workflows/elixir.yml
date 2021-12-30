@@ -28,7 +28,6 @@ jobs:
     - name: Install dependencies
       run: cd exchanger && mix deps.get
     - name: Create data dirs
-      run: mkdir -p priv/data/mnesia/test && \
-           mkdir -p priv/data/mnesia/integration
+      run: mkdir -p priv/data/mnesia/test && mkdir -p priv/data/mnesia/integration
     - name: Run tests
       run: mix test
