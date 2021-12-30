@@ -12,6 +12,7 @@ COPY exchanger/ $APP_HOME
 WORKDIR $APP_HOME
 
 RUN mix deps.get
+RUN mix compile
 
 RUN mkdir -p priv/data/mnesia/dev && \
     mkdir -p priv/data/mnesia/test && \

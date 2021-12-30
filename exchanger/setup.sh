@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# compile all application code
-MIX_ENV=$ENV mix compile
-
 # generates docs
 mix docs
 
