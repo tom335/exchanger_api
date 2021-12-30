@@ -28,6 +28,10 @@ jobs:
     - name: Install dependencies
       run: cd exchanger && mix deps.get
     - name: Create data dirs
-      run: mkdir -p priv/data/mnesia/test && mkdir -p priv/data/mnesia/integration
-    - name: Run tests
+      working-directory: ./exchanger
+      run: |
+        mkdir -p priv/data/mnesia/test
+        mkdir -p priv/data/mnesia/integration
+    - name: Setup and run tests
+      working-directory: ./exchanger
       run: mix test
