@@ -27,8 +27,8 @@ jobs:
         restore-keys: ${{ runner.os }}-mix-
     - name: Install dependencies
       run: cd exchanger && mix deps.get
-    - name: Create dir
-      run: mkdir priv/data/mnesia/test && \
-           mkdir priv/data/mnesia/integration
+    - name: Create data dirs
+      run: mkdir -p priv/data/mnesia/test && \
+           mkdir -p priv/data/mnesia/integration
     - name: Run tests
       run: mix test
