@@ -41,7 +41,8 @@ Examples:
             "to":          String,
             "amount":      Float,
             "amount_conv": Float,
-            "rate":        Float
+            "rate":        Float,
+            "inserted_at": DateTime
         }
         .
         .
@@ -112,6 +113,7 @@ Required fields:
     "amount":      Float
     "amount_conv": Float
     "rate":        Float
+    "inserted_at": DateTime
 }
 ```
 
