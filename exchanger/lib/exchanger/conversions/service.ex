@@ -73,6 +73,7 @@ defmodule Exchanger.Conversions.Service do
   ```
 
   """
+  @spec list_conversions(Map) :: {:ok, Map} | {:error, Map}
   def list_conversions(%{} = params) do
     errors = validate_query_params(params)
 
@@ -109,7 +110,7 @@ defmodule Exchanger.Conversions.Service do
   If any value, rates or amount is invalid, return `nil`.
 
   """
-  @spec convert(String.t(), String.t(), Float.t()) :: {Float.t(), Float.t()} | nil
+  @spec convert(String, String, Float) :: {Float, Float} | nil
   def convert(from, to, amount) do
     %{rates: rates} = get_latest_rates()
 

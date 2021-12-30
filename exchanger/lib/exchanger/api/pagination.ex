@@ -29,7 +29,7 @@ defmodule Exchanger.Api.Pagination do
   }
   ```
   """
-  @spec build(String.t(), String.t(), String.t(), Integer.t()) :: Map
+  @spec build(String, String, String, Integer) :: Map
   def build(endpoint, page, page_size, total_count) do
     page = to_int(page, 1)
     page_size = to_int(page_size, @page_size)
