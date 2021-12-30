@@ -1,6 +1,6 @@
 # Exchanger
 
-![Elixir test](https://github.com/toms099/exchanger_api/actions/workflows/elixir.yml/badge.svg)
+![Unit Tests](https://github.com/toms099/exchanger_api/actions/workflows/elixir.yml/badge.svg)
 
 This project provides an API for currency convertions, using the [ExchangeRatesAPI](https://exchangeratesapi.io/) service.
 
