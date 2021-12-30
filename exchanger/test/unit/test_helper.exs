@@ -18,8 +18,8 @@ Service.save_rates(%{
 
 # user 1 conversions
 Enum.each(1..10, fn _n ->
-  {:ok, _conv} = Service.create_conversion(
-    %{
+  {:ok, _conv} =
+    Service.create_conversion(%{
       user_id: 1,
       from: "USD",
       to: "BRL",
@@ -29,14 +29,11 @@ end)
 
 # user 2 conversions
 Enum.each(1..5, fn _n ->
-  {:ok, _conv} = Service.create_conversion(
-    %{
+  {:ok, _conv} =
+    Service.create_conversion(%{
       user_id: 2,
       from: "GPB",
       to: "USD",
       amount: 991.32
     })
 end)
-
-
-

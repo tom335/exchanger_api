@@ -23,11 +23,15 @@ defmodule Exchanger.Api.Client do
     {:ok, json} = Jason.decode(body, keys: :atoms)
 
     case json do
-      %{success: _, rates: rates} -> rates
+      %{success: _, rates: rates} ->
+        rates
+
       %{error: %{code: _code, message: message}} ->
         Logger.warning("Error parsing received JSON: #{message}")
         %{}
-      _ -> %{}
+
+      _ ->
+        %{}
     end
   end
 

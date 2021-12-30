@@ -8,5 +8,4 @@ config :exchanger,
   ex_api_key: System.get_env("EX_API_ACCESS_KEY"),
   http: Exchanger.Api.HttpClient
 
-config :logger, :console,
-  level: :info
+config :logger, :console, level: :info

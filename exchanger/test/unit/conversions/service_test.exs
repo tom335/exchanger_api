@@ -49,12 +49,18 @@ defmodule Exchanger.Conversions.ServiceTest do
   end
 
   test "convert/3: convert amount success" do
-    {:ok, _rates} = save_rates()
-
     # attempt to convert 10BRL to USD
     {amount, _} = Service.convert("BRL", "USD", 10.0)
 
     assert amount == 1.75739
+  end
+
+  test "convert/3: convert amount failed, currency not found" do
+    assert is_nil(Service.convert("NON", "USD", 10.0))
+  end
+
+  test "convert/3: convert amount failed, amount invalid" do
+    assert is_nil(Service.convert("NON", "USD", :invalid_amount))
   end
 
   defp save_rates() do

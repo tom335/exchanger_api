@@ -78,21 +78,28 @@ defmodule Exchanger.MixProject do
 
   def run_setup_db(_args) do
     Enum.each(["dev", "test", "integration", "prod"], fn env ->
-      run_with_env("run", env,
-        ["./priv/repo/mnesia_migration.exs"]) end)
+      run_with_env("run", env, ["./priv/repo/mnesia_migration.exs"])
+    end)
   end
 
   def run_integration_tests(args), do: run_with_env("test", "integration", args)
   def run_unit_tests(args), do: run_with_env("test", "test", args)
 
   def run_with_env(cmd, env, args) do
-    IO.puts "==> Running #{cmd} with `MIX_ENV=#{env}`"
+    IO.puts("==> Running #{cmd} with `MIX_ENV=#{env}`")
 
-    args = if cmd == "test" do ["--color"|args] else args end
+    args =
+      if cmd == "test" do
+        ["--color" | args]
+      else
+        args
+      end
 
-    {_, res} = System.cmd "mix", [cmd|args],
-      into: IO.binstream(:stdio, :line),
-      env: [{"MIX_ENV", to_string(env)}]
+    {_, res} =
+      System.cmd("mix", [cmd | args],
+        into: IO.binstream(:stdio, :line),
+        env: [{"MIX_ENV", to_string(env)}]
+      )
 
     if res > 0 do
       System.at_exit(fn _ -> exit({:shutdown, 1}) end)

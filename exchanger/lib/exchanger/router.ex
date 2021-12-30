@@ -1,9 +1,10 @@
 defmodule Exchanger.Router do
   use Plug.Router
 
-  plug Plug.Static,
+  plug(Plug.Static,
     at: "/",
     from: "doc/"
+  )
 
   plug(:match)
   plug(:dispatch)

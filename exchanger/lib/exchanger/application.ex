@@ -7,7 +7,6 @@ defmodule Exchanger.Application do
 
   @impl true
   def start(_type, _args) do
-
     children = [
       {
         Plug.Cowboy,
@@ -20,8 +19,8 @@ defmodule Exchanger.Application do
     ]
 
     children =
-      if Mix.env in [:dev, :prod] do
-        [{Exchanger.FetchRatesJob, name: FetchRatesJob}|children]
+      if Mix.env() in [:dev, :prod] do
+        [{Exchanger.FetchRatesJob, name: FetchRatesJob} | children]
       else
         children
       end

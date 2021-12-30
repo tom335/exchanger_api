@@ -20,7 +20,7 @@ defmodule Exchanger.Api.HttpClient do
 
   @doc """
   Performs an HTTP request to the given `url` with `method`.
-  
+
   Methods are represented by atoms like:
 
   ```

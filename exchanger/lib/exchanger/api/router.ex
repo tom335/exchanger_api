@@ -23,10 +23,11 @@ defmodule Exchanger.Api.Router do
 
     case Service.list_conversions(query) do
       {:ok, %{items: items, total_count: total_count}} ->
-        pagination = Pagination.build(conn.request_path, page, total_count, page_size)
+        pagination = Pagination.build(conn.request_path, page, page_size, total_count)
         conn |> send(:ok, %{conversions: items, pagination: pagination})
 
-      {:error, errors} -> conn |> send(:malformed_data, %{error: "Request error", details: errors})
+      {:error, errors} ->
+        conn |> send(:malformed_data, %{error: "Request error", details: errors})
     end
   end
 
@@ -37,8 +38,11 @@ defmodule Exchanger.Api.Router do
 
   post "/conversions" do
     case Service.create_conversion(conn.body_params) do
-      {:ok, conversion} -> conn |> send(:created, conversion)
-      {:error, errors} -> conn |> send(:unprocessable, %{error: "Validation error", details: errors})
+      {:ok, conversion} ->
+        conn |> send(:created, conversion)
+
+      {:error, errors} ->
+        conn |> send(:unprocessable, %{error: "Validation error", details: errors})
     end
   end
 
@@ -60,14 +64,15 @@ defmodule Exchanger.Api.Router do
 
   defp send(conn, code, data) when is_atom(code) do
     http_codes = [
-        ok: 200,
-        created: 201,
-        not_found: 404,
-        malformed_data: 400,
-        unprocessable: 422,
-        server_error: 500,
-        error: 504
+      ok: 200,
+      created: 201,
+      not_found: 404,
+      malformed_data: 400,
+      unprocessable: 422,
+      server_error: 500,
+      error: 504
     ]
+
     send(conn, http_codes[code], data)
   end
 

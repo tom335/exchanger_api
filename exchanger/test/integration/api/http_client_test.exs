@@ -16,7 +16,7 @@ defmodule Exchanger.Api.HttpClientTest do
     {:ok, response} = HttpClient.request(:get, @base_url <> "/lksoua89sdjldk")
 
     {:ok, json} = Jason.decode(response.body, keys: :atoms)
-    
+
     assert json.message == "Not Found"
   end
 
@@ -26,4 +26,3 @@ defmodule Exchanger.Api.HttpClientTest do
     assert is_binary(response.body)
   end
 end
-

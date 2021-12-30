@@ -1,4 +1,11 @@
 defmodule Exchanger.FetchRatesJob do
+  @moduledoc """
+  This is a timed task which runs at every 12 hours, calling the
+  LoadRates.load() utility to fetch the latest rates from the external
+  ExchangeRates API.
+
+  If running in production, fetch rates on application start.
+  """
   use GenServer
 
   require Logger
@@ -8,7 +15,7 @@ defmodule Exchanger.FetchRatesJob do
   @timeout :timer.hours(12)
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def init(state) do
@@ -18,8 +25,8 @@ defmodule Exchanger.FetchRatesJob do
 
   def handle_continue(:start, state) do
     # fetch rates immediately after application starts
-    if Mix.env == :prod do
-      Logger.info(">>> App started :: Fetching rates in #{DateTime.utc_now} <<<")
+    if Mix.env() == :prod do
+      Logger.info(">>> App started :: Fetching rates in #{DateTime.utc_now()} <<<")
       LoadRates.load()
     end
 
@@ -27,8 +34,8 @@ defmodule Exchanger.FetchRatesJob do
   end
 
   def handle_info(:timeout, state) do
-    Logger.info(">>> Fetching rates in #{DateTime.utc_now} <<<")
-    # wait 24h before fetching data again
+    Logger.info(">>> Fetching rates in #{DateTime.utc_now()} <<<")
+    # wait 12h before fetching data again
     LoadRates.load()
 
     {:noreply, state, @timeout}

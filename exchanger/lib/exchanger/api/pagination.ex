@@ -12,6 +12,9 @@ defmodule Exchanger.Api.Pagination do
   The parameter `endpoint` serves as reference for build the next/previous links
   to the other pages.
 
+  Parameters `page` and `page` size are defined as strings since many times
+  they can be received from `query_params` maps.
+
   Example of pagination map:
 
   ```
@@ -26,14 +29,26 @@ defmodule Exchanger.Api.Pagination do
   }
   ```
   """
-  def build(endpoint, page, total_count, page_size) do
+  @spec build(String.t(), String.t(), String.t(), Integer.t()) :: Map
+  def build(endpoint, page, page_size, total_count) do
     page = to_int(page, 1)
     page_size = to_int(page_size, @page_size)
 
     total_pages = ceiling(total_count / page_size)
 
-    next_page = if page + 1 <= total_pages do page + 1 else nil end
-    prev_page = if page - 1 > 0 do page - 1 else nil end
+    next_page =
+      if page + 1 <= total_pages do
+        page + 1
+      else
+        nil
+      end
+
+    prev_page =
+      if page - 1 > 0 do
+        page - 1
+      else
+        nil
+      end
 
     pagination = %{
       page: page,
@@ -80,9 +95,12 @@ defmodule Exchanger.Api.Pagination do
     case float - t do
       neg when neg < 0 ->
         t
+
       pos when pos > 0 ->
         t + 1
-      _ -> t
+
+      _ ->
+        t
     end
   end
 end

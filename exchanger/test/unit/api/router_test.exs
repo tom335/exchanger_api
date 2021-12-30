@@ -34,7 +34,7 @@ defmodule Exchanger.RouterTest do
   test "GET /api/conversions?user_id=1: returns only conversions by user" do
     conn = get_req("/conversions?user_id=1")
     assert conn.status == 200
-    
+
     %{conversions: conversions, pagination: pagination} = decode_resp(conn.resp_body)
 
     assert Enum.all?(conversions, fn conv -> conv.user_id == 1 end)
@@ -60,7 +60,8 @@ defmodule Exchanger.RouterTest do
   end
 
   test "POST /api/conversions: request failed, malformed JSON" do
-    json = ~s({"amount": anything) # bad JSON
+    # bad JSON
+    json = ~s({"amount": anything)
     conn = post_json("/api/conversions", json)
 
     assert_raise Plug.Parsers.ParseError, fn ->

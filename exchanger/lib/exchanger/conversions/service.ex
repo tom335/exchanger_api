@@ -39,16 +39,18 @@ defmodule Exchanger.Conversions.Service do
 
   @doc """
   Queries the database to retrieve conversions and the records count, according to `params`.
-  
+
   Returns either a tuple `{:ok, map}` or `{:error, errors_map}`.
 
   The parameters can be:
 
+  ```
   %{
     :user_id
     :page    
     :page_size
   }
+  ```
 
   Example of success results:
 
@@ -102,17 +104,29 @@ defmodule Exchanger.Conversions.Service do
   @doc """
   Performs a conversion between currencies.
 
-  Returns the converted value or `nil`.
+  Returns a tuple with the converted amount and the conversion rate.
+
+  If any value, rates or amount is invalid, return `nil`.
+
   """
+  @spec convert(String.t(), String.t(), Float.t()) :: {Float.t(), Float.t()} | nil
   def convert(from, to, amount) do
     %{rates: rates} = get_latest_rates()
 
     [from_rate, to_rate] = [rates[String.to_atom(from)], rates[String.to_atom(to)]]
 
-    rate_conv = to_rate / from_rate
-    amount_conv = Float.round(rate_conv * amount, 5)
+    if Enum.all?([from_rate, to_rate, amount], &float_or_int?/1) do
+      rate_conv = to_rate / from_rate
+      amount_conv = Float.round(rate_conv * amount, 5)
 
-    {amount_conv, rate_conv}
+      {amount_conv, rate_conv}
+    else
+      nil
+    end
+  end
+
+  defp float_or_int?(value) do
+    is_float(value) or is_integer(value)
   end
 
   defp list_and_paginate(params) do
@@ -147,7 +161,7 @@ defmodule Exchanger.Conversions.Service do
   end
 
   defp validate_query_params(%{} = params) do
-    errors = 
+    errors =
       [:user_id, :page, :page_size]
       |> Enum.reduce(%{}, fn k, m ->
         if validate_int(params[k]) do
@@ -157,6 +171,7 @@ defmodule Exchanger.Conversions.Service do
           Map.put(m, k, "Parameter #{k} must be an integer")
         end
       end)
+
     errors
   end
 
@@ -164,7 +179,7 @@ defmodule Exchanger.Conversions.Service do
     if is_nil(value) do
       # let the nil values pass now, since
       # they're optional
-      true 
+      true
     else
       case Integer.parse(value) do
         :error -> false
@@ -197,7 +212,7 @@ defmodule Exchanger.Conversions.Service do
 
   defp total_count(by_user) do
     # unfortunately, mnesia doesn't have the count(*) equivalent as in SQL
-    length( 
+    length(
       Conversion
       |> select([c], c.id)
       |> where(^by_user)
