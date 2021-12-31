@@ -20,6 +20,8 @@ defmodule Exchanger.Conversions.Conversion do
     :inserted_at
   ]
 
+  @timestamps_opts [type: :utc_datetime]
+
   @derive {Jason.Encoder, only: @json_fields}
   schema "conversion" do
     field(:user_id, :integer)
