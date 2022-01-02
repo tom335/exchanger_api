@@ -16,6 +16,8 @@ defmodule Exchanger.Conversions.Service do
   alias Exchanger.Conversions.Conversion
   alias Exchanger.Conversions.Rates
 
+  alias :mnesia, as: Mnesia
+
   @doc """
   Inserts a new conversion into the table; returns errors
   if the validation has failed.
@@ -212,12 +214,8 @@ defmodule Exchanger.Conversions.Service do
   end
 
   defp total_count(by_user) do
-    # unfortunately, mnesia doesn't have the count(*) equivalent as in SQL
-    length(
-      Conversion
-      |> select([c], c.id)
-      |> where(^by_user)
-      |> Repo.all()
-    )
+    # mnesia doesn't have the count(*) equivalent as in SQL
+    # but this should do the job
+    Mnesia.table_info(:conversion, :size)
   end
 end
