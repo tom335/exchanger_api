@@ -27,7 +27,7 @@ If you just want to get the application running, the easiest way is to use Docke
 Once in the `exchanger` directory, Create the data folders that will store mnesia tables:
 
 ```
-mkdir -p priv/data/mnesia/test
+mkdir -p priv/data/mnesia/dev
 mkdir -p priv/data/mnesia/prod
 ```
 Execute the commands above **before** starting Docker, or it'll mount the volume on top of the directories as root.
