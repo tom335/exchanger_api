@@ -21,6 +21,7 @@ defmodule Exchanger.Conversions.Service do
   if the validation has failed.
 
   Returns a tuple with either `{:ok, conversion}` or `{:error, errors}`.
+
   """
   def create_conversion(%{} = data) do
     changeset = Conversion.changeset(%Conversion{}, data)
@@ -134,10 +135,10 @@ defmodule Exchanger.Conversions.Service do
     {page_size, offset} = page_params(params)
 
     fields = [:id, :user_id, :from, :to, :amount, :amount_conv, :rate, :inserted_at]
+    user_id = if uid = params[:user_id] do String.to_integer(uid) else nil end
 
     by_user =
-      if uid = params[:user_id] do
-        user_id = String.to_integer(uid)
+      if user_id do
         dynamic([c], c.user_id == ^user_id)
       else
         true
@@ -151,7 +152,7 @@ defmodule Exchanger.Conversions.Service do
       |> limit(^page_size)
       |> Repo.all()
 
-    %{items: items, total_count: total_count(by_user)}
+    %{items: items, total_count: total_count(user_id)}
   end
 
   defp map_errors(errors) do
@@ -190,6 +191,9 @@ defmodule Exchanger.Conversions.Service do
     end
   end
 
+  # perhaps all of these methods below could be turned into public functions
+  # on a more specialized module like Service.Paginated, in
+  # order to be fully testable
   defp page_params(%{} = params) do
     p_size = params[:page_size]
     p = params[:page]
@@ -211,13 +215,26 @@ defmodule Exchanger.Conversions.Service do
     {page_size, offset}
   end
 
-  defp total_count(by_user) do
-    # unfortunately, mnesia doesn't have the count(*) equivalent as in SQL
-    length(
-      Conversion
-      |> select([c], c.id)
-      |> where(^by_user)
-      |> Repo.all()
-    )
+  defp total_count(user_id) when is_nil(user_id) do
+    # mnesia doesn't have the count(*) equivalent as in SQL
+    # but this should do the trick...
+    :ets.select_count(:conversion, [
+      {
+        {:_, :_, :_, :_, :_, :_, :_, :_, :_, :_},
+        [], # anything matches
+        [true]}
+    ])
+  end
+
+  defp total_count(user_id) do
+    :ets.select_count(:conversion, [
+      {
+        # table fields match spec, $1 is the user_id
+        {:_, :_, :"$1", :_, :_, :_, :_, :_, :_, :_},
+        # when user_id == 1...
+        [{:==, :"$1", user_id}],
+        # we expect the match to be true, then count it
+        [true]}
+    ])
   end
 end
